@@ -1,0 +1,98 @@
+# DenseMixer Enhanced Configuration
+# This file contains all available configuration options for DenseMixer improvements
+
+# Global settings
+enabled: true
+debug_mode: false
+log_level: "INFO"
+config_version: "1.0"
+
+# Model-specific configurations
+models:
+  qwen3:
+    enabled: true
+    custom_forward_method: null
+    normalization_method: "partscale_fix_expert"  # Options: "standard", "gated", "partscale_fix_expert"
+    expert_parallelism: false
+    custom_parameters: {}
+  
+  qwen2:
+    enabled: true
+    custom_forward_method: null
+    normalization_method: "standard"
+    expert_parallelism: false
+    custom_parameters: {}
+  
+  olmoe:
+    enabled: true
+    custom_forward_method: null
+    normalization_method: "standard"
+    expert_parallelism: false
+    custom_parameters: {}
+  
+  deepseek_moe:
+    enabled: false  # Not yet implemented
+    custom_forward_method: null
+    normalization_method: "standard"
+    expert_parallelism: false
+    custom_parameters: {}
+  
+  switch_transformer:
+    enabled: false  # Not yet implemented
+    custom_forward_method: null
+    normalization_method: "standard"
+    expert_parallelism: false
+    custom_parameters: {}
+
+# Memory optimization settings
+memory:
+  use_gradient_checkpointing: true
+  max_memory_gb: 16.0
+  chunk_size: null  # Auto-determined if null
+  memory_efficient_routing: true
+  enable_memory_profiling: false
+
+# Adaptive routing settings
+adaptive_routing:
+  enabled: false  # Experimental feature
+  min_k: 1
+  max_k: 4
+  complexity_threshold: 0.5
+  adaptation_rate: 0.1
+  use_learned_thresholds: true
+  complexity_weights:
+    entropy: 0.4
+    attention_spread: 0.4
+    gradient_norm: 0.2
+
+# Load balancing settings
+load_balancing:
+  enabled: true
+  balance_factor: 0.01
+  target_utilization_variance: 0.1
+  expert_dropout_rate: 0.0
+  load_balancing_loss_weight: 0.01
+
+# Monitoring and analytics settings
+monitoring:
+  enabled: true
+  history_size: 1000
+  log_interval: 100
+  save_metrics: true
+  metrics_output_dir: "./densemixer_metrics"
+  detailed_expert_analysis: false
+  performance_profiling: false
+
+# Experimental features (use with caution)
+experimental:
+  dynamic_expert_selection: false
+  expert_merging: false
+  router_distillation: false
+  multi_level_routing: false
+  expert_pruning: false
+  router_ensemble: false
+
+# Auto-tuning settings
+auto_tune: false
+auto_tune_steps: 1000
+save_auto_tune_config: true

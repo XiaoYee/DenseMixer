@@ -1,0 +1,55 @@
+# High Performance Configuration for DenseMixer
+# Optimized for maximum performance on large GPU clusters
+
+enabled: true
+debug_mode: false
+log_level: "INFO"
+
+models:
+  qwen3:
+    enabled: true
+    normalization_method: "partscale_fix_expert"
+    expert_parallelism: true
+  qwen2:
+    enabled: true
+    normalization_method: "standard"
+    expert_parallelism: true
+  olmoe:
+    enabled: true
+    normalization_method: "standard"
+    expert_parallelism: true
+
+memory:
+  use_gradient_checkpointing: true
+  max_memory_gb: 80.0  # High-end GPU memory
+  memory_efficient_routing: true
+  enable_memory_profiling: true
+
+adaptive_routing:
+  enabled: true
+  min_k: 2
+  max_k: 6
+  complexity_threshold: 0.3
+  adaptation_rate: 0.05
+  use_learned_thresholds: true
+
+load_balancing:
+  enabled: true
+  balance_factor: 0.02
+  target_utilization_variance: 0.05
+  load_balancing_loss_weight: 0.02
+
+monitoring:
+  enabled: true
+  history_size: 2000
+  log_interval: 50
+  save_metrics: true
+  detailed_expert_analysis: true
+  performance_profiling: true
+
+experimental:
+  dynamic_expert_selection: true
+  router_ensemble: true
+
+auto_tune: true
+auto_tune_steps: 2000
