@@ -1,0 +1,46 @@
+# Memory Efficient Configuration for DenseMixer
+# Optimized for systems with limited GPU memory
+
+enabled: true
+debug_mode: false
+log_level: "WARNING"  # Reduce logging overhead
+
+models:
+  qwen3:
+    enabled: true
+    normalization_method: "standard"
+  qwen2:
+    enabled: true
+  olmoe:
+    enabled: true
+
+memory:
+  use_gradient_checkpointing: true
+  max_memory_gb: 8.0  # Limited memory
+  chunk_size: 512  # Small chunks
+  memory_efficient_routing: true
+  enable_memory_profiling: false
+
+adaptive_routing:
+  enabled: false  # Disable to save memory
+
+load_balancing:
+  enabled: true
+  balance_factor: 0.005  # Reduce overhead
+  load_balancing_loss_weight: 0.005
+
+monitoring:
+  enabled: true
+  history_size: 100  # Small history
+  log_interval: 500  # Less frequent logging
+  save_metrics: false  # Don't save to disk
+  detailed_expert_analysis: false
+  performance_profiling: false
+
+experimental:
+  # All disabled to save memory
+  dynamic_expert_selection: false
+  expert_merging: false
+  router_distillation: false
+
+auto_tune: false
