@@ -17,6 +17,14 @@ import pandas as pd
 
 exact_match = evaluate.load("exact_match")
 
+
+def load_eval_dataset(dataset_name, data_file):
+    normalized = dataset_name.strip().lower() if dataset_name else ""
+    if normalized in {"", "json", "local_json", "gsm_local_json"}:
+        return load_dataset("json", data_files=data_file)
+    return load_dataset(dataset_name, data_files=data_file)
+
+
 def trim_output(output):
     instruction_prefix = "Answer the following question"
     question_prefix = 'Question:'
@@ -37,14 +45,15 @@ def main(args):
     print("Loading data...")
     test_data = []
 
-    test_dataset = load_dataset(args.dataset_name, data_files=args.test_file)
+    test_dataset = load_eval_dataset(args.dataset_name, args.test_file)
     test_df = pd.DataFrame(test_dataset['train'])
 
     test_data = []
 
     if "question" in test_df.columns and "answer" in test_df.columns:
-        for _, row in test_df.iterrows():
+        for source_idx, (_, row) in enumerate(test_df.iterrows()):
             test_data.append({
+                "source_idx": source_idx,
                 "question": row["question"],
                 "answer": row["answer"].split("####")[1].strip() if "####" in row["answer"] else row["answer"].strip()
             })
@@ -52,6 +61,13 @@ def main(args):
     for example in test_data:
         example["answer"] = re.sub(r"(\d),(\d)", r"\1\2", example["answer"])
         assert float(example["answer"]), f"answer is not a valid number: {example['answer']}"
+
+    if args.sample_indices_file:
+        if args.max_examples:
+            raise ValueError("--max_examples and --sample_indices_file are mutually exclusive")
+        with open(args.sample_indices_file, "r") as fin:
+            sample_indices = json.load(fin)
+        test_data = [test_data[idx] for idx in sample_indices]
 
     if args.max_examples and len(test_data) > args.max_examples:
         test_data = random.sample(test_data, args.max_examples)
@@ -124,6 +140,7 @@ def main(args):
     print(f"Exact match : {em_score}")
 
     predictions = [{
+        "source_idx": example["source_idx"],
         "question": example["question"],
         "answer": example["answer"],
         "model_output": output,
@@ -144,6 +161,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_name", type=str, default="")
     parser.add_argument("--test_file", type=str, default="")
     parser.add_argument("--max_examples", type=int, default=None, help="maximum number of examples to evaluate.")
+    parser.add_argument("--sample_indices_file", type=str, default=None, help="JSON file containing a list of dataset indices to evaluate.")
     parser.add_argument("--save_dir", type=str, default="results/gsm")
     parser.add_argument("--model_name_or_path", type=str, default=None, help="Model path.")
     parser.add_argument("--tokenizer_name_or_path", type=str, default=None, help="Tokenizer path.")
